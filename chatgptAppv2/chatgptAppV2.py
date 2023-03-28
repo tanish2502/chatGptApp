@@ -1,13 +1,13 @@
 import gradio as gr
 import openai
-import config
 import os
+from dotenv import load_dotenv
 from pydub import AudioSegment
 
+load_dotenv()
+
 #accessing openapi Key.
-openai.api_key = config.OPENAI_API_KEY
-#openai.api_key = os.environ.get('OPENAI_API_KEY')
-#openai.api_key = <API-KEY>
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 audio_messages = [{"role": "system", "content": 'You are an AI assistant expert. Respond to all input in precise, crisp and easy to understand language.'}]
 text_messages = [{"role": "system", "content": 'You are an AI assistant expert. Respond to all input in precise, crisp and easy to understand language.'}]
@@ -15,7 +15,7 @@ global user_text_input, text_output, user_audio_input, audio_output
 
 """
 It seems like the gr.Audio source is not generating a WAV file, which is required for the openai.Audio.transcribe() method to work. 
-To convert the audio file to WAV format, you can use a library like Pydub.
+To convert the audio file to WAV format, i have used a library like Pydub.
 """
 
 def audio_transcribe(audio):
@@ -29,7 +29,7 @@ def audio_transcribe(audio):
     transcript = openai.Audio.transcribe("whisper-1", final_audio_file)
     os.remove("temp.wav")
 
-    #transcripted input to chatGPT API
+    #transcripted input to chatGPT API for chatCompletion 
     audio_message.append({"role": "user", "content": transcript["text"]}) # type: ignore
     response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=audio_message)
     system_message = response["choices"][0]["message"] # type: ignore
